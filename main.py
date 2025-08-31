@@ -19,8 +19,14 @@ class Token:
     re = re.compile(".*")
 
     @classmethod
-    def test(cls, s):
-        return cls.re.fullmatch(s)
+    def consume(cls, s):
+        m = cls.re.match(s)
+        if m:
+            return cls(m[0]), s[m.end() :]
+        return None, s
+
+    def __repr__(self):
+        return f'{type(self).__name__}: "{self.word}"'
 
     def __init__(self, word):
         self.word = word
@@ -68,64 +74,23 @@ class Add(Token):
         stack.append(a + b)
 
 
-class Tokenizer:
-    def __init__(self):
-        self.tokens = []
-        self.word = ""
-        self.potential_types = token_types
-
-    def push_token(self, token):
-        # Append token
-        self.tokens.append(token)
-        # Reset
-        self.word = ""
-        self.potential_types = token_types
-
-    def push(self, c):
-        self.word += c
-        print(c, self.word)
-        new_types = []
-        for token_type in self.potential_types:
-            # Narrow down token types
-            if token_type.test(self.word):
-                new_types.append(token_type)
-        if len(new_types) == 1:
-            token_type = new_types[0]
-            token = token_type(self.word)
-            self.push_token(token)
-            return
-        if new_types:
-            # Continue same word
-            self.potential_types = new_types
-            return
-        if len(self.word) == 1:
-            # Reset if single character doesn't match anything
-            self.word = ""
-            self.potential_types = token_types
-            return
-        # Push token using previous word
-        token_type = self.potential_types[0]
-        token = token_type(self.word[:-1])
-        self.push_token(token)
-        # Try last char again
-        return self.push(c)
-
-    def flush(self):
-        if not self.word:
-            return
-        token_type = self.potential_types[0]
-        token = token_type(self.word)
-        self.push_token(token)
+@register_token_type
+class Whitespace(Token):
+    re = re.compile("\\s+")
 
 
-tokenizer = Tokenizer()
+tokens = []
+while text:
+    for token_type in token_types:
+        token, text = token_type.consume(text)
+        if token:
+            tokens.append(token)
+            break
+    else:
+        raise ValueError(f"Cannot parse text:\n{text}")
 
-for c in text:
-    tokenizer.push(c)
-tokenizer.flush()
-
-print(tokenizer.tokens)
+print(tokens)
 
 stack = []
-for token in tokenizer.tokens:
+for token in tokens:
     token.exec(stack)
