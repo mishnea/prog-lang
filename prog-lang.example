@@ -1,0 +1,34 @@
+// Print the first two arguments to console. store remaining args in an array of at least two elements
+log($[2]), $args[2:];
+// Pop first two elements of `args` array into `x` and `y`. Add them, and store the result in `z`
+args -> $x + $y, $args[] -> $z;
+// Use a block. Variables initialised within a block are locally scoped
+1, 2 -> $x, $y;
+x -> {
+    $ + 3 -> $x
+} -> $y;
+log(x); // 1
+log(y); // 4
+// Declare a function, `some_function`. A function can be thought of simply as an alias for a block
+some_function: {
+    // Accept inputs as `x`, `y`, and log the first
+    $x, $y -> log($);
+    // Return sum of `x` and `y`
+    $x + $y
+};
+// Create a function which finds the length of an array
+len: {
+    // Store input into an array of any length
+    $arr[];
+    // Initialise `i` to an integer of 0
+    $i = 0;
+    // While an element of `arr` can be popped into `x`
+    while (arr -> ?x, $arr[]) {
+        // Log the value of `x`
+        log(x);
+        // Increment `i`
+        $i = i + 1
+    }
+    // The final value of `i` is 'returned'
+};
+
