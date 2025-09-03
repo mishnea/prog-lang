@@ -1,1 +1,2 @@
-"foo" = 5 foo log "foo" log 7 + foo + 2.5 log
+"foo" = 5 foo log "foo"
+log 7 + foo + 2.5 log
