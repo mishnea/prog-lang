@@ -1,19 +1,27 @@
-from copy import copy
+class Tokenizer:
+    token_types = []
 
-from .token_types import token_types, Whitespace
+    @classmethod
+    def add_type(cls, token_type):
+        cls.token_types.append(token_type)
 
+    def __init__(self, text):
+        self.text = text
+        self.state = None
 
-def tokenizer(text):
-    text = copy(text)
-    tokens = []
-    while text:
-        for token_type in token_types:
-            token, text = token_type.consume(text)
-            if token:
-                if isinstance(token, Whitespace):
-                    break
+    def tokenize(self):
+        text = self.text
+        tokens = []
+        while text:
+            for token_type in self.token_types:
+                word, rest = token_type.test(text)
+                if not word:
+                    continue
+                token = token_type(word)
                 tokens.append(token)
+                text = rest
                 break
-        else:
-            raise ValueError(f"Cannot parse text:\n{text}")
-    return tokens
+            else:
+                print(tokens)
+                raise ValueError(f'No token matching text beginning with "{text[:10]}"')
+        return tokens

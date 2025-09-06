@@ -1,31 +1,18 @@
-from tokenizer import tokenizer, token_types
+import sys
 
-fname = "input.txt"
+from tokenizer import Tokenizer
+
+try:
+    fname = sys.argv[1]
+except IndexError:
+    print("Provide input filename")
+    exit(0)
 
 with open(fname) as f:
     text = f.read()
 
+tokenizer = Tokenizer(text)
 
-tokens = tokenizer(text)
+tokens = tokenizer.tokenize()
 
-
-print("First pass:", tokens)
-
-for i, token in enumerate(tokens[::-1]):
-    j = len(tokens) - i - 1
-    if isinstance(token, token_types.Add):
-        tokens[j], tokens[j + 1] = tokens[j + 1], tokens[j]
-    if isinstance(token, token_types.Assignment):
-        tokens[j], tokens[j + 1] = tokens[j + 1], tokens[j]
-    if isinstance(token, token_types.Waypoint):
-        tokens[j], tokens[j + 1] = tokens[j + 1], tokens[j]
-    if isinstance(token, token_types.Goto):
-        tokens[j], tokens[j + 1] = tokens[j + 1], tokens[j]
-
-print("Second pass:", tokens)
-
-ctx = {"stack": [], "cursor": 0}
-
-while ctx["cursor"] < len(tokens):
-    tokens[ctx["cursor"]].eval(ctx)
-    ctx["cursor"] += 1
+print(*tokens, sep="   ")
