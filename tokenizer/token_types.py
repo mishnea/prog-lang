@@ -25,7 +25,7 @@ class Token:
     def __init__(self, word):
         self.word = word
 
-    def eval(self, stack):
+    def eval(self, ctx):
         pass
 
 
@@ -33,8 +33,32 @@ class Token:
 class Log(Token):
     re = re.compile("log")
 
-    def eval(self, stack):
-        print(stack[-1])
+    def eval(self, ctx):
+        print(ctx["stack"][-1])
+
+
+@register_token_type
+class Waypoint(Token):
+    re = re.compile("waypoint")
+
+    map = {}
+
+    def eval(self, ctx):
+        name = ctx["stack"].pop()
+        type(self).map[name] = ctx["cursor"]
+
+
+@register_token_type
+class Goto(Token):
+    re = re.compile("goto")
+
+    map = {}
+
+    def eval(self, ctx):
+        name = ctx["stack"].pop()
+        if name not in Waypoint.map:
+            return
+        ctx["cursor"] = Waypoint.map[name]
 
 
 @register_token_type
@@ -47,43 +71,43 @@ class Identifier(Token):
     def assign(cls, name, value):
         cls.map[name] = value
 
-    def eval(self, stack):
-        stack.append(self.map[self.word])
+    def eval(self, ctx):
+        ctx["stack"].append(self.map[self.word])
 
 
 @register_token_type
 class Number(Token):
     re = re.compile("[0-9]+(\\.[0-9]+)?")
 
-    def eval(self, stack):
-        stack.append(float(self.word))
+    def eval(self, ctx):
+        ctx["stack"].append(float(self.word))
 
 
 @register_token_type
 class String(Token):
-    re = re.compile('"[^"]*"')
+    re = re.compile('".*?"')
 
-    def eval(self, stack):
-        stack.append(self.word[1:-1])
+    def eval(self, ctx):
+        ctx["stack"].append(self.word[1:-1])
 
 
 @register_token_type
 class Add(Token):
     re = re.compile("\\+")
 
-    def eval(self, stack):
-        a = stack.pop()
-        b = stack.pop()
-        stack.append(a + b)
+    def eval(self, ctx):
+        a = ctx["stack"].pop()
+        b = ctx["stack"].pop()
+        ctx["stack"].append(a + b)
 
 
 @register_token_type
 class Assignment(Token):
     re = re.compile("=")
 
-    def eval(self, stack):
-        value = stack.pop()
-        name = stack.pop()
+    def eval(self, ctx):
+        value = ctx["stack"].pop()
+        name = ctx["stack"].pop()
         Identifier.assign(name, value)
 
 

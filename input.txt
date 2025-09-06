@@ -1,2 +1,8 @@
-"foo" = 5 foo log "foo"
-log 7 + foo + 2.5 log
+"i" = 0
+waypoint 1
+waypoint 2
+waypoint 3
+"i" 1 += i
+i log
+goto i
+"end" log

@@ -17,9 +17,15 @@ for i, token in enumerate(tokens[::-1]):
         tokens[j], tokens[j + 1] = tokens[j + 1], tokens[j]
     if isinstance(token, token_types.Assignment):
         tokens[j], tokens[j + 1] = tokens[j + 1], tokens[j]
+    if isinstance(token, token_types.Waypoint):
+        tokens[j], tokens[j + 1] = tokens[j + 1], tokens[j]
+    if isinstance(token, token_types.Goto):
+        tokens[j], tokens[j + 1] = tokens[j + 1], tokens[j]
 
 print("Second pass:", tokens)
 
-stack = []
-for token in tokens:
-    token.eval(stack)
+ctx = {"stack": [], "cursor": 0}
+
+while ctx["cursor"] < len(tokens):
+    tokens[ctx["cursor"]].eval(ctx)
+    ctx["cursor"] += 1
