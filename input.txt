@@ -1,8 +1,1 @@
-"i" = 0
-waypoint 1
-waypoint 2
-waypoint 3
-"i" 1 += i
-i log
-goto i
-"end" log
+log($), "foo", $ -> $, log(_), $ -> log(_+_)
